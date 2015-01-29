@@ -1,0 +1,188 @@
+/* author css */
+
+html, body { height:100%; overflow: hidden;}
+@font-face {
+  font-family: 'Yanone Kaffeesatz';
+  font-style: normal;
+  font-weight: 300;
+  src: local('Yanone Kaffeesatz Light'), local('YanoneKaffeesatz-Light'), url('../fonts/YanoneKaffeesatz-Light.woff') format('woff');
+}
+@font-face {
+  font-family: 'Yanone Kaffeesatz';
+  font-style: normal;
+  font-weight: 200;
+  src: local('Yanone Kaffeesatz Thin'), local('YanoneKaffeesatz-Thin'), url('../fonts/YanoneKaffeesatz-Thin.woff') format('woff');
+}
+@font-face {
+  font-family: 'Yanone Kaffeesatz';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Yanone Kaffeesatz Bold'), local('YanoneKaffeesatz-Bold'), url('../fonts/YanoneKaffeesatz-Bold.woff') format('woff');
+}
+@font-face {
+  font-family: 'Yanone Kaffeesatz';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Yanone Kaffeesatz Regular'), local('YanoneKaffeesatz-Regular'), url('../fonts/YanoneKaffeesatz-Regular.woff') format('woff');
+}
+body {
+	background-image: -webkit-gradient(radial, 50% 10%, 0, 50% 30%, 900, from(rgba(232,218,187,1.0)), to(rgba(66,127,150,1.0)) );
+	font-family: 'Yanone Kaffeesatz', serif;
+	font-style: normal;
+	text-shadow: 2px 2px 2px #aaa;
+	text-decoration: none;
+	text-transform: none;
+	letter-spacing: 0em;
+	word-spacing: 0em;
+	line-height: 0.9;
+	color:#333;
+	font-size:230%;
+	overflow:hidden;
+	overflow-x:hidden;
+}
+div.slides { position:absolute; top:0px; right:0px; left:0px; bottom:0px; overflow:hidden; font-size:100%; }
+
+#output { 
+	font-size:1em;
+	line-height:1.2em;
+	text-shadow:none;
+	position:absolute;
+	bottom:0;
+	width:90%;
+	padding:.5% 5%;
+	background-color: rgba( 0,0,0,0.3 );
+	font-family: monaco;
+	z-index:10;
+}
+#output div:before {
+	content:"> ";
+}
+h1, h2, h3, h4, h5, h6 { font-weight:bold; text-shadow: 0em 0em .02em #EEEEEE, .01em .01em .04em #555; margin-bottom:.2em;}
+h1 { font-size:3.2em; }
+h2 { font-size:2.8em;  }
+h3 { font-size:2.3em;  }
+h4 { font-size:1.9em;  }
+h5 { font-size:1.5em;  }
+h6 { font-size:1.2em;  }
+
+div.note {
+	border-top:2px solid #666;
+	border-bottom:2px solid #666;
+	padding:.6em 0;
+	margin:.6em 0;
+	text-align:center;
+}	
+
+div.note h1, div.note h2, div.note h3, div.note h4, div.note h5, div.note h6 {
+ text-shadow: 0em 0em .04em #000,0em 0em .09em #444;
+	color: #d7a213;
+}
+
+div.intro { text-align:center; }
+div.intro div.note { text-align:right; border-bottom:none;}
+div.intro h1{ font-size:5em; margin:0; }
+div.intro h2, div.intro h3 { margin:0; font-size:2.02em;}
+div.intro h5 { font-size: 0.8em; }
+
+div.slide {
+	position:absolute;
+	top:0%;
+	left:100%;
+	height:100%;
+	width:100%;
+	opacity:.1;
+	display: -webkit-box;
+	text-align:left;
+	-webkit-box-orient: vertical;
+	-webkit-box-pack: center;
+	-webkit-box-align: center;
+}
+div.demo {
+display:block;	
+}
+div.cta { text-align:center; font-size:1.2em;}
+div.slide img.only {
+	width:77%;
+}
+div.slide.part {
+	top:150%;
+	left:0%;
+}
+div.slide.active {
+	left:0%;
+	top:0%;
+	opacity:1;
+}
+div.slide.old {
+	left:-150%;
+	opacity:.1;
+}
+div.slide.old.part {
+	left:0%;
+	top:-150%;
+	opacity:.1;
+}
+div.slide.old, div.slide.active, div.slide {
+	-webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    -ms-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+}
+
+div.slide footer {
+	position:absolute;
+	bottom:1%;
+	border-top:.01em solid #000;
+}
+div.intro {
+}
+div.crowded { font-size:.65em; }
+
+div.slide div.content {
+	margin-top:.5em;
+}
+div.slide div.list {
+	margin-top:.5em;
+}
+div.list h2, div.list h3, div.list h4, div.list h5, div.list h6 {
+	margin-top:.5em;
+}
+div.demo-markup { display:none;}
+/* prettifier */
+.prettyprint, .html {
+ background-color: rgba( 255, 255, 255, 0.1) !important;
+  border:1px transparent #FFF;
+  border-radius:1em;
+  width: auto !important;
+  font-size:1em;
+  padding:1em !important;	
+}
+.html {
+	line-height:1em;
+}
+.prettyprint span {
+	line-height:1.1em;
+}
+.prettyprint span.jQuery {
+	color:#a03f09;
+	font-weight:bold;
+}
+pre.background, pre.leave {
+	display:none;
+}
+
+
+/* demos */
+div.ball {
+	width:2em; height:2em; border:3px solid #444; border-radius: 1.1em; position:absolute; 
+}
+div.ball.red {
+	background: #aa1a0f;
+}
+div.ball.blue {
+	background: #234f9e;
+}
+div.ball.yellow {
+	background: #ebc222;
+}

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)http://demo.creative-area.net/wakanday2011/#45 -->
+<html data-ember-extension="1"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+		<title>From "Callback Soups" to Deferreds!</title>
+		<link rel="stylesheet" href="css/base.css">
+		<link rel="stylesheet" href="css/prettify.css">
+		<link rel="stylesheet" href="css/site.css">
+	</head>
+	<body>
+		<div class="slides">
+
+			<div id="output"><div>questions?</div><div>questions?</div><div>questions?</div><div>questions?</div></div>
+
+			<div class="slide cta intro active old" title="Introduction">
+				<div class="content">
+					<h3>jQuery Promises and Deferreds!</h3>
+					<div class="note">
+						<h4>Modfified from a presentation by Julian Aubourg</h4>
+					</div>
+				</div>
+			</div>
+
+			<div class="slide active old">
+			  <div class="inner">
+			    <h2>A typical callback</h2>
+				<pre class="prettyprint"><span class="pln jQuery">$</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"server/get-data/"</span><span class="pun">,</span><span class="pln"><br>&nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> data </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; callMeBack</span><span class="pun">(</span><span class="pln"> data </span><span class="pun">);</span><span class="pln"><br>&nbsp; </span><span class="pun">}</span><span class="pln"><br></span><span class="pun">});</span></pre>
+			  </div>
+			</div>
+
+			<div class="slide crowded active old">
+					<div class="inner">
+					  <h3>happens more than you think</h3>
+					<pre class="prettyprint"><span class="kwd">function</span><span class="pln"> goGetIt</span><span class="pun">()</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br><br>&nbsp; </span><span class="kwd">var</span><span class="pln"> whatGotReturned</span><span class="pun">;</span><span class="pln"><br><br>&nbsp; $</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; &nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"server/get-data/"</span><span class="pun">,</span><span class="pln"><br>&nbsp; &nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> data </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; whatGotReturned </span><span class="pun">=</span><span class="pln"> data</span><span class="pun">;</span><span class="pln"><br>&nbsp; &nbsp; </span><span class="pun">}</span><span class="pln"><br>&nbsp; </span><span class="pun">});</span><span class="pln"><br><br>&nbsp; </span><span class="kwd">return</span><span class="pln"> whatGotReturned</span><span class="pun">;</span><span class="pln"><br></span><span class="pun">}</span><span class="pln"><br><br>goGetIt</span><span class="pun">();</span><span class="pln"> </span><span class="com">// returns undefined</span></pre>
+					</div>
+			</div>
+
+			<div class="slide active old">
+					<div class="inner">
+					  <h3>What ends up having to happen</h3>
+					<pre class="prettyprint"><span class="kwd">function</span><span class="pln"> goGetIt</span><span class="pun">(</span><span class="pln"> callMeBack </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; $</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; &nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"server/get-data/"</span><span class="pun">,</span><span class="pln"><br>&nbsp; &nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> data </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; callMeBack</span><span class="pun">(</span><span class="pln"> data </span><span class="pun">);</span><span class="pln"><br>&nbsp; &nbsp; </span><span class="pun">}</span><span class="pln"><br>&nbsp; </span><span class="pun">});</span><span class="pln"><br></span><span class="pun">}</span><span class="pln"><br><br>goGetIt</span><span class="pun">(</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> data </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; </span><span class="com">// handle data</span><span class="pln"><br></span><span class="pun">});</span><span class="pln"> </span></pre>
+					</div>
+			</div>
+
+			<div class="slide cta part active old" title="The Problem">
+				<h1>... and in real apps?</h1>
+			</div>
+
+<div class="slide crowded intro active old">
+<div class="content">
+<pre class="prettyprint"><span class="com">// Get the ID</span><span class="pln jQuery"><br>$</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"getMyId.php"</span><span class="pun">,</span><span class="pln"><br>&nbsp; data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> name</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Julian"</span><span class="pln"> </span><span class="pun">},</span><span class="pln"><br>&nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> id </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; </span><span class="com">// Get the data</span><span class="pln"><br>&nbsp; &nbsp; $</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"data.php"</span><span class="pun">,</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> id</span><span class="pun">:</span><span class="pln"> id </span><span class="pun">},</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> d </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; &nbsp; </span><span class="com">// OMG what do I do now???</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="pun">}</span><span class="pln"><br>&nbsp; &nbsp; </span><span class="pun">});</span><span class="pln"><br>&nbsp; </span><span class="pun">}</span><span class="pln"><br></span><span class="pun">});</span><span class="pln"><br><br></span><span class="com">// Get the template</span><span class="pln jQuery"><br>$</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"template.php"</span><span class="pun">,</span><span class="pln"><br>&nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> t </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; </span><span class="com">// now what???</span><span class="pln"><br>&nbsp; </span><span class="pun">}</span><span class="pln"><br></span><span class="pun">});</span></pre>
+</div>
+</div>
+
+<div class="slide crowded intro active old">
+<div class="content">
+<pre class="prettyprint">
+$.ajax({
+  url: "getMyId.php",
+  success: function( id ) {
+    $.ajax({
+      url: "data.php",
+      success: function( d ) {
+        data = d;
+        decount();
+      }
+    });
+  }
+});
+$.ajax({
+  url: "template.php",
+  success: function( t ) {
+    tmpl = t;
+    decount();
+  }
+});
+var tmpl, data, count = 2;
+function decount() {
+  if ( ! --count ) {
+    apply_template( tmpl, data );
+  }
+}</pre>
+</div>
+</div>
+
+			<div class="slide active old">
+					<h2>decoupling hell</h2>
+					<div class="list">
+						<h4>services have to worry about calling back</h4>
+						<h4>code is messy</h4>
+						<h4>maintenance requires acrobatics</h4>
+						<h4>handling failures becomes a hassle</h4>
+					</div>
+			</div>
+
+			<div class="slide cta active old">
+				<div class="content">
+					<h2>we want something that...</h2>
+					<div class="list">
+						<h5>manages our callbacks</h5>
+						<h5>handles successes and failures</h5>
+						<h5>can be passed around</h5>
+						<h5>has a consistent api</h5>
+					</div>
+				</div>
+			</div>
+
+			<div class="slide cta part active old">
+				<h1>Meet  Promises</h1>
+			</div>
+
+
+			<div class="slide active old">
+				<h1>A Promise is an object that</h1>
+				<div class="list">
+                                  <ul>
+                                   <li>Represents a future value</li>
+                                   <br>
+				   <li>Has 3 states: pending, resolved (success) or rejected (failure)</li>
+                                   <br>
+                                   <li>Once it has entered the resolved or rejected state it can never change</li>
+                                   <br>
+                                   <li>Holds 2 buckets of callbacks that will be triggered when the future value is avalible</li>
+                                  </ul>
+
+				</div>
+			</div>
+
+			<div class="slide active old">
+				<h1>Deferred</h1>
+				<div class="list">
+                                  <ul>
+                                   <li>They are the objects jQuery uses to create promises</li>
+                                   <br>
+				   <li>A deferred is a promise</li>
+                                   <br>
+				   <li>Deferreds have the ability set their own state</li>
+                                  </ul>
+				</div>
+			</div>
+
+			<div class="slide crowded active old">
+				<h1>pieces of a deferred as in jQuery</h1>
+				<div class="list">
+					<h5>then</h5>
+					<p>Filtering and chaining utility</p>
+
+
+					<h5>resolve</h5>
+					<p>Determine if the deferred has been rejected</p>
+
+					<h5>reject</h5>
+					<p>Determine if the deferred has been resolved</p>
+
+					<h5>promise</h5>
+					<p>more on this later :)</p>
+				</div>
+			</div>
+
+
+			<div class="slide active old">
+				<h1>Creating a deferred</h1>
+<pre class="prettyprint run">
+ // create a new deferred
+ var dfd = $.Deferred();
+
+ dfd.then( function( data ) {
+  output( 'done!' + data );
+ });
+
+ dfd.resolve( 'yay!' );
+</pre>
+			</div>
+
+			<div class="slide active old">
+				<h1>#fail</h1>
+				<pre class="prettyprint run">
+ // create a new deferred
+ var dfd = $.Deferred();
+
+ dfd.then(null, function( data ) {
+ 	output( 'broked!' + data );
+ });
+
+ dfd.reject( 'oh noes!' );
+</pre>
+			</div>
+
+<div class="slide crowded active old" title="then as a simple filter">
+	<div class="content">
+		<h2>then as a simple filter</h2><br>
+		<pre class="prettyprint run">
+var defer = $.Deferred();
+var filtered = defer.then(function( company ) {
+	return company + " is always late";
+});
+filtered.then( output );
+
+defer.resolve( "American Airlines" );
+
+</pre>
+	</div>
+</div>
+
+<div class="slide crowded active old" title="then as a chaining tool">
+	<div class="content">
+		<h2>then as a chaining tool</h2><br>
+		<pre class="prettyprint run">
+var defer = $.Deferred();
+var filtered = defer.then(function( company ) {
+	return $.Deferred(function( defer ) {
+		setTimeout( function() {
+			defer.resolve( company + " is still late" );
+		}, 1000 );
+	});
+});
+filtered.then( output );
+defer.resolve( "American Airlines" );
+</pre>
+	</div>
+</div>
+
+<div class="slide crowded active old" title="then as a redirection tool">
+	<div class="content">
+		<h2>then as a redirection tool</h2><br>
+		<pre class="prettyprint run">
+
+var defer = $.Deferred();
+var filtered = defer.then(function( company ) {
+	return $.Deferred(function( defer ) {
+		setTimeout( function() {
+			defer.reject( company + " is late!" );
+		}, 1000 );
+	});
+});
+filtered.then( null, output );
+defer.resolve( "American Airlines" );</pre>
+	</div>
+</div>
+
+<div class="slide active old" title="So pipe can be used as...">
+	<div class="content">
+		<h1>So then can be used as...</h1>
+		<div class="list">
+			<h5>a resolution/rejection value filter,</h5>
+			<h5>a chaining system,</h5>
+			<h5>a deferred "rerouter".</h5>
+		</div>
+	</div>
+</div>
+
+			<div class="slide crowded active old">
+                          <h1>Promises Promises</h1>
+				<pre class="prettyprint run">
+
+function doSomethingAsynchronous() {
+	var dfd = $.Deferred();
+
+	setTimeout( function() {
+		dfd.resolve( 'did it!' )
+	}, 4000 );
+
+	return dfd.promise();
+}
+
+doSomethingAsynchronous()
+	.then( function( data ) {
+		output( 'we '+ data );
+	});
+
+// doSomethingAsynchronous().resolve();
+// would throw an exception
+</pre>
+			</div>
+
+			<div class="slide crowded active old" title="Introduction">
+			  <h3>a promise is forever</h3>
+				<div class="list">
+					<h5>then</h5>
+                                        <p>Filtering and chaining utility</p>
+
+					<h5>isRejected</h5>
+					<p>Determine if the deferred has been rejected</p>
+					<h5>isResolved</h5>
+					<p>Determine if the deferred has been resolved</p>
+
+					<h5>promise</h5>
+					<p>Another promise</p>
+				</div>
+			</div>
+
+		<div class="slide cta active old">
+			<h1>so now what?</h1>
+			<div class="list">
+                          <ul>
+				<p>We can create a deferred object that holds our callbacks</p>
+                                <br>
+				<p>We can return, pass around, store, etc a public interface for the deferred: a promise</p>
+                                <br>
+				<p>We can easily resolve or reject that deferred</p>
+                                <br>
+                                <p>Resolved or rejected data is passed to the callbacks no matter where they were assigned</p>
+                                <br>
+				<p>If we add callbacks later on, they're immediatly called with the correct data</p>
+                          </ul>
+			</div>
+		</div>
+
+		<div class="slide part active old">
+			<h1>$.ajax</h1>
+			<h1>as asynchronous </h1>
+			<h1>as it gets</h1>
+		</div>
+
+		<div class="slide active old">
+			<h2>$.ajax returns a promise</h2>
+			<pre class="prettyprint run">
+$.ajax({
+	url: 'srv/echo',
+	data: { echo: "stuff",
+	 				delay: 1,
+	 				error: 1}
+}).then(
+	function( data, status, jqXHR ) {
+		output( data );
+	}
+);
+</pre>
+		</div>
+
+		<div class="slide active old">
+			<h1>SO WHAT</h1>
+			<pre class="prettyprint">
+$.ajax({
+  url: '/srv/echo',
+  data: { echo: "stuff" },
+  success: function( data ) {
+    output( data );
+  }
+});
+</pre>
+			<h3>still works, right?</h3>
+		</div>
+
+		<div class="slide active old">
+			<h3>Can your callback do this?</h3>
+			<pre class="prettyprint run">
+
+function getUserName() {
+	return $.ajax({
+		url: 'srv/echo',
+		data: { random: 1 }
+  });
+}
+
+getUserName().then( function( name ) {
+	output( name );
+});
+</pre>
+		</div>
+
+		<div class="slide cta part active old" title="Patterns we now have">
+			<h1>PATTERNS WE NOW HAVE</h1>
+		</div>
+
+			<div class="slide crowded active old">
+				<h1>Synchro</h1>
+				<pre class="prettyprint">
+var polling;
+
+function pollServer() {
+  if ( !polling ) {
+    polling = $.ajax({
+      url: "urlToAsk"
+    }).then(function() {
+      polling = undefined;
+    });
+  }
+  return polling;
+}
+
+pollServer().then( myFirstFunction );
+pollServer().then( mySecondFunction );
+</pre>
+			</div>
+
+			<div class="slide crowded active old">
+				<h1>Caching</h1>
+				<pre class="prettyprint">
+var cache = {};
+
+function retrievePerson( id ) {
+  if ( !cache[ id ] ) {
+    cache[ id ] = $.ajax({
+      url: "url/to/service",
+      data: {
+        id: id
+      }
+    });
+  }
+  return cache[ id ];
+}
+
+retrievePerson( 23 ).then( myFirstFunction );
+retrievePerson( 23 ).then( mySecondFunction );
+retrievePerson( 37 ).then( anotherCallback );
+</pre>
+			</div>
+
+		<div class="slide cta part active old" title="Multiple Deferreds">
+			<h1>MULTIPLE DEFERREDS</h1>
+		</div>
+
+		<div class="slide active old">
+			<h1>$.when magic</h1>
+			<h4>take any # of arguments and wraps them in a promise</h4>
+		</div>
+
+		<div class="slide crowded active old">
+		     	<pre class="prettyprint run">
+function aName() {
+	return $.get( 'srv/echo', { random:1 });
+}
+
+$.when( aName(), "JQ", aName(), { a: "eh?" } )
+	.then( function( a1, txt, a2, obj ) {
+		output( a1 );
+		output( txt );
+		output( a2 );
+		output( obj );
+	});
+</pre>
+		</div>
+
+		<div class="slide crowded active old">
+			<pre class="prettyprint run">
+function aName() {
+	return $.get( 'srv/echo', { random:1 });
+}
+
+function customDfd() {
+	var dfd = $.Deferred();
+	setTimeout( function() {
+		dfd.resolve( 'all done!' );
+	}, 4000 );
+	return dfd.promise();
+}
+
+$.when( aName(), customDfd() )
+	.then( function( name, custom ) {
+		output( name );
+	});
+</pre>
+		</div>
+
+			<div class="slide active old">
+				<h1>History Lesson</h1>
+                                
+                                
+                                <div class="list">
+                                  <p>Computer Science concept since the 70s.</p>
+
+                                  <p>CommmonJS (Attempted to standardize server side JS, predated node.js)</p>
+                                  <ul>
+                                    <li>Modules</li>
+                                    <li>Promise/A</li>
+                                    <li>Promise/(B C D)</li>
+                                  </ul>
+                                </div>
+			</div>
+
+                        <div class="slide active old">
+                          <h1>Promise/A+</h1>
+                          <div class="list">
+                            <ul>
+                              <li>ES6 Promises</li>
+			      <li>q</li>
+			      <li>RSVP</li>
+			      <li>Bluebird</li>
+                              <li>when.js</li>
+                              <li>And others...</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div class="slide active old">
+                        <h5>What is wrong with jQuery?</h5>
+			<p>Does not force handles to be async</p>			
+                        <p>has `done`, `fail` and `always` which do not chain</p>
+                        <p>Errors thrown inside a `then` callback are do not reject the promise</p>
+                        </div>
+
+<div class="slide crowded intro active old">
+<div class="content">
+<h3>Remember this?</h3>
+<pre class="prettyprint"><span class="pln jQuery">$</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"getMyId.php"</span><span class="pun">,</span><span class="pln"><br>&nbsp; data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> name</span><span class="pun">:</span><span class="pln"> </span><span class="str">"Julian"</span><span class="pln"> </span><span class="pun">},</span><span class="pln"><br>&nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> id </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; $</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"data.php"</span><span class="pun">,</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; data</span><span class="pun">:</span><span class="pln"> </span><span class="pun">{</span><span class="pln"> id</span><span class="pun">:</span><span class="pln"> id </span><span class="pun">},</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> d </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; &nbsp; data </span><span class="pun">=</span><span class="pln"> d</span><span class="pun">;</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; &nbsp; decount</span><span class="pun">();</span><span class="pln"><br>&nbsp; &nbsp; &nbsp; </span><span class="pun">}</span><span class="pln"><br>&nbsp; &nbsp; </span><span class="pun">});</span><span class="pln"><br>&nbsp; </span><span class="pun">}</span><span class="pln"><br></span><span class="pun">});</span><span class="pln jQuery"><br>$</span><span class="pun">.</span><span class="pln">ajax</span><span class="pun">({</span><span class="pln"><br>&nbsp; url</span><span class="pun">:</span><span class="pln"> </span><span class="str">"template.php"</span><span class="pun">,</span><span class="pln"><br>&nbsp; success</span><span class="pun">:</span><span class="pln"> </span><span class="kwd">function</span><span class="pun">(</span><span class="pln"> t </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; tmpl </span><span class="pun">=</span><span class="pln"> t</span><span class="pun">;</span><span class="pln"><br>&nbsp; &nbsp; decount</span><span class="pun">();</span><span class="pln"><br>&nbsp; </span><span class="pun">}</span><span class="pln"><br></span><span class="pun">});</span><span class="pln"><br></span><span class="kwd">var</span><span class="pln"> tmpl</span><span class="pun">,</span><span class="pln"> data</span><span class="pun">,</span><span class="pln"> count </span><span class="pun">=</span><span class="pln"> </span><span class="lit">2</span><span class="pun">;</span><span class="pln"><br></span><span class="kwd">function</span><span class="pln"> decount</span><span class="pun">()</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; </span><span class="kwd">if</span><span class="pln"> </span><span class="pun">(</span><span class="pln"> </span><span class="pun">!</span><span class="pln"> </span><span class="pun">--</span><span class="pln">count </span><span class="pun">)</span><span class="pln"> </span><span class="pun">{</span><span class="pln"><br>&nbsp; &nbsp; apply_template</span><span class="pun">(</span><span class="pln"> tmpl</span><span class="pun">,</span><span class="pln"> data </span><span class="pun">);</span><span class="pln"><br>&nbsp; </span><span class="pun">}</span><span class="pln"><br></span><span class="pun">}</span></pre>
+</div>
+</div>
+
+
+<div class="slide active old">
+  <pre class="prettyprint">
+$.when(
+  $.ajax( "template.php" ),
+  $.ajax( "getMyId.php", { data: { name: "Julian" } } ).then(function( id ) {
+    return $.ajax( "data.php", {
+      data: { id: id }
+    });
+  })
+).then(function( t, d ) {
+  apply_template( t[ 0 ], d[ 0 ] );
+});
+  </pre>
+</div>
+
+		<div class="slide cta active old">
+			<h1>Promises...</h1>
+			<div class="list">
+				<p>Extreamly useful for creating nice apis around asycn behavior</p>
+				<p>Popular in jQuery</p>
+				<p>Going to be built into the JavaScript language.</p><p>
+			</p></div>
+		</div>
+
+		<div class="slide active">
+			<pre class="prettyprint run" style="font-size:1.3em;">
+$.when( "talk" )
+	.then( function() {
+		output( "questions?" );
+	});
+</pre>
+		</div>
+
+</div>
+
+
+		<!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
+		<script src="js/jquery-2.1.3.js"> </script>
+
+		<script type="text/javascript" src="./From  Callback Soups  to Deferreds!_files/plugins.js"></script>
+		<script type="text/javascript" src="./From  Callback Soups  to Deferreds!_files/prettify.js"></script>
+		<script type="text/javascript" src="./From  Callback Soups  to Deferreds!_files/script.js"></script>
+
+
+
+</body></html>
